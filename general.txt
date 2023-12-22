@@ -1,0 +1,18 @@
+1)--npm i morgan
+app.use(morgan('dev')); 
+a-dev  :method :url :status :response-time ms - :res[content-length]
+
+b)short  
+:remote-addr :remote-user :method :url HTTP/:http-version :status :res[content-length] - :response-time ms
+
+c)tiny
+:method :url :status :res[content-length] - :response-time ms
+///////////////////////////////////////////////
+
+2)DB connection is in async method
+3)enum is used in creating schema to define role (admin,user)
+4)userSchema.pre('save',function(next){
+    if(!this.isModified(password)){return next()}
+}).....it is used to encrypt the password while storing in the database
+5)multer-->it is used to convert binary dat into into image
+6)cloudanary-->it is a 3rd party libarary used to store images
