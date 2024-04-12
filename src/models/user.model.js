@@ -1,3 +1,7 @@
+import dotenv from 'dotenv';
+dotenv.config();
+
+
 import mongoose from "mongoose";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
@@ -21,14 +25,14 @@ const userSchema=new mongoose.Schema({
         type: String,
         required: [true,"Password is required"],
         minLength: [8,"Password must be at least 8 characters"],
-        maxLength: [50,"Password cannot be more than 50 characters"],
+        // maxLength: [30,"Password cannot be more than 30 characters"],
         select:false,
       },
       avtar:{
         public_id: {
             type: String,
       },
-      secure:{
+      secure_url:{
         type: String,
       }
     },
@@ -54,13 +58,13 @@ const userSchema=new mongoose.Schema({
 
 
  userSchema.methods={
-    generateJWTT: async function(){
-        return await jwt.sign({
+    generateJWTToken: async function(){
+        return  jwt.sign({
             id:this._id,email:this.email,subscription:this.subscription,role:this.role
         },
-        process.env.JWT_SECRET,
+        process.env.ACCESS_TOKEN_SECRET,
         {
-            expiresIn:process.env.JWT_EXPIRY,
+            expiresIn:process.env.ACCESS_TOKEN_EXPIRY,
         })
     },
     comparePassword:async function(plainTextPassword){

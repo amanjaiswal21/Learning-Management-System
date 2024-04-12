@@ -1,6 +1,7 @@
 import User from "../models/user.model.js";
 import AppError from "../utils/error.utils.js"
 import cloudinary from "cloudinary"
+import fs from "fs/promises"
 const cookieOptions = {
     maxAge:7*24*60*60*1000, //7 days
     httpOnly:true,
@@ -13,7 +14,7 @@ if(!fullName || !email || !password){
     return next(new AppError("Allfields must be requires",400));
 }
 
-const userExist=await register.findOne({email})
+const userExist=await User.findOne({email})
 if(userExist){
     return next(new AppError("email already exist",400));
 }
@@ -22,8 +23,8 @@ if(userExist){
     email,
     password,
     avtar:{
-        public_id: email,
-        url: `https://api.adorable.io/avatar/285/${email}`
+        public_id: " ",
+        secure_url: ""
     }
  })
 if(!user){
@@ -32,27 +33,22 @@ if(!user){
 
 //TODO:File upload
 
-if(req.file){
-    try{
-const result=await cloudinary.v2.uploader.upload(req.file.path,{
-    folder:'lms',
-    width:250,
-    height:250,
-    gravity:'faces',
-    crop:'fill'
-});
-if(result){
-    user.avtar.public_id=result.public_id;
-    user.avtar.secure_url=result.secure_url;
 
-    //remove file from server
-    fs.rm(`uploads/ ${req.file.filename}`)
+if (req.file) {
+    try {
+        const result = await cloudinary.uploader.upload(req.file.path);
+        user.avtar.public_id = result.public_id;
+        user.avtar.secure_url = result.secure_url;
+
+        // Remove file from server
+        await fs.rm(req.file.path);
+
+    } catch (error) {
+        console.error("Cloudinary upload error:", error);
+        return next(new AppError("File upload failed, please try again later", 500));
+    }
 }
-    }catch(e){
-return next(
-    new AppError(e.message||"file not uploaded please try again later",500)
-)    }
-}
+
 
 
 await user.save();
@@ -72,15 +68,16 @@ res.status(201).json({
 
 
 
-const login=async (req,res)=>{
+const login=async (req,res,next)=>{
     try{
         
         const{email,password}=req.body;
-
+        console.log(email,password);
         if(!email ||!password){
             return next(new AppError("Allfields must be requires",400));
         }
-        const user =await User.findOne({email}).select('+password');
+        const user =await User.findOne({email}).select('+password');//plus isliye kiya hai mujhe explicitily password magna padega hamne model me password ko select false kiya hai
+        
         
         if(!user|| !user.comparePassword(password)){
             return next(new AppError("email or password mismatch",400))
@@ -117,6 +114,7 @@ res.cookie('token',null,
 const getProfile=async (req,res)=>{
     try{
         const userId=req.user.id;
+       
         const user=await User.findById(userId);
         res.status(200).json({
             success: true,
@@ -127,6 +125,8 @@ const getProfile=async (req,res)=>{
     return next(new AppError("failed to fetch user profile",500))
     }
 };
+
+const for
 
 export{
     register,

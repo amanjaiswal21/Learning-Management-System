@@ -4,8 +4,10 @@ import isLoggedIn from '../middlewares/auth.middlware.js';
 import upload from "../middlewares/multer.middlewars.js"
 const router=express.Router();
 
-router.post('/register',upload.single("avatar"),register);
+router.post('/register',upload.single('avatar'),register);
 router.post('/login',login);
 router.get('/logout',logout); 
 router.get('/me',isLoggedIn,getProfile)
+router.post('/forgot-password',forgotPassword);
+router.post('/reset-password',resetPassword);
 export default router;
