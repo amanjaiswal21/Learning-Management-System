@@ -1,0 +1,9 @@
+->pehle express sever set kiya
+
+->phir mongodb connectinon set kiya 
+phir app.js router define kiya
+
+->when we are uploading avatar to the server
+1)when client send the avatar it will send in binary form
+2)in server we use multer to convert binary data into image 
+3)we donot store images in server so we use third party that is cloudnary it will store the data in url form 
